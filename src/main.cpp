@@ -7,21 +7,21 @@
 
 using namespace std;
 
-struct Book;
-struct User;
 
 struct User {
+
     string name;
     int id;
-    vector<Book> borrowerd_books;
+    vector<int> borrowerd_books_ids;
     
 };
 
 struct Book {
+
     int id;
     string name;
     int quantity;
-    vector<User> borrower;
+    vector<int> borrower_ids;
     
 };
 
@@ -29,14 +29,17 @@ vector<User> users_array;
 vector<Book> books_array;
 
 
+//---------------------------searching functions---------------------------
 
 //binary search method for adding books and other functionalities
 
 int checking_if_book_exists(const vector<Book> &books, string target) {
+
     int low =0;
     int high = books.size() -1;
 
     while(low <= high) {
+
         int mid = low + (high-low)/2;
 
         if (books[mid].name == target) {
@@ -57,10 +60,12 @@ int checking_if_book_exists(const vector<Book> &books, string target) {
 // repeated my self hahaha :) 
 
 int checking_if_user_exists(const vector<User> &users, int target_id) {
+
     int low =0;
     int high = users.size() -1;
 
     while(low <= high) {
+
         int mid = low + (high-low)/2;
 
         if (users[mid].id == target_id) {
@@ -73,8 +78,85 @@ int checking_if_user_exists(const vector<User> &users, int target_id) {
             high = mid -1;
         }
     }
+
     return -1;
 }
+
+
+
+
+//---------------------------file handling functions---------------------------
+
+void load_data() {
+    //loading books
+    ifstream books_file("data/books.csv");
+    string line, token;
+    if (books_file.is_open()) {
+        while (getline(books_file, line)) {
+            stringstream ss(line);
+            Book b;
+            getline(ss, token, ','); b.id = stoi(token);
+            getline(ss, token, ','); b.name = token;
+            getline(ss, token, ','); b.quantity = stoi(token);
+            while (getline(ss, token, ',')) {
+                b.borrower_ids.push_back(stoi(token));
+            }
+            books_array.push_back(b);
+        }
+        books_file.close();
+    }
+
+    //loading users
+    ifstream users_file("data/users.csv");
+    if (users_file.is_open()) {
+        while (getline(users_file, line)) {
+            stringstream ss(line);
+            User u;
+            getline(ss, token, ','); u.id = stoi(token);
+            getline(ss, token, ','); u.name = token;
+            while (getline(ss, token, ',')) {
+                u.borrowerd_books_ids.push_back(stoi(token));
+            }
+            users_array.push_back(u);
+        }
+        users_file.close();
+    }
+}
+
+void save_data() {
+
+    //saving books
+
+    ofstream books_file("data/books.csv");
+    if (books_file.is_open()) {
+        for (const auto& b : books_array) {
+            books_file << b.id << "," << b.name << "," << b.quantity;
+            for (int uid : b.borrower_ids) books_file << "," << uid;
+            books_file << "\n";
+        }
+        books_file.close();
+    } else {
+        cout << "Warning: 'data' folder not found! Could not save books.csv\n";
+    }
+
+    // saving users
+    ofstream users_file("data/users.csv");
+    if (users_file.is_open()) {
+
+        for (const auto& u : users_array) {
+
+            users_file << u.id << "," << u.name;
+            for (int bid : u.borrowerd_books_ids) users_file << "," << bid;
+            users_file << "\n";
+
+        }
+        users_file.close();
+
+    }
+}
+
+
+//---------------------------core functions---------------------------
 
 
 void add_book() {
@@ -87,8 +169,10 @@ void add_book() {
     // cheking if the book is the first one then add it directly
 
     if (books_array.empty()) {
+
         books_array.push_back(book);
         return;
+
     }
 
     // checking if the book already added to the array, then let it and increase its quantitiy
@@ -96,8 +180,10 @@ void add_book() {
     int index = checking_if_book_exists(books_array, book.name);
 
     if (index != -1) {
+
         books_array[index].quantity += book.quantity;
         return ;
+
     }
     
 
@@ -106,15 +192,20 @@ void add_book() {
     bool is_inserted = false;
 
     for (int i =0; i < books_array.size(); ++i) {
+
         if ( book.name < books_array[i].name ) {
+
             books_array.insert(books_array.begin() + i, book);
             is_inserted =true;
             break;
+
         }
     }
 
     if(!is_inserted) {
+
         books_array.push_back(book);
+
     }
 
 }
@@ -131,28 +222,37 @@ void add_user() {
     cout << "\n";
 
     if (users_array.empty()) {
+
         users_array.push_back(user);
+
     }
 
     int index = checking_if_user_exists(users_array, user.id);
 
     if (index != -1) {
+
         cout << "this user is already exists try again with different id ";
         return ;
+
     }
 
     bool is_inserted = false;
 
     for (int i =0; i < users_array.size(); ++i) {
+
         if (user.id < users_array[i].id) {
+
             users_array.insert(users_array.begin() + i, user);
             is_inserted = true;
             break;
+
         }
     }
 
     if(!is_inserted) {
+
         users_array.push_back(user);
+
     }
 
 }
@@ -176,13 +276,17 @@ void search_by_prefix() {
     // print all books starts with our prefix
 
     while(it != books_array.end() && it->name.find(prefix) == 0) {
+
         cout << "Found: " << it->name << "( ID: " << it->id << " Quantity: " << it->quantity << ")\n";
         it++;
         found = true;
+
     }
 
     if (!found) {
+
         cout << "No books found starting with '" << prefix << "'\n";
+
     }
 
 }
@@ -199,14 +303,25 @@ void print_users_by_book() {
     int book_index = checking_if_book_exists(books_array, book_name);
 
     if(book_index == -1) {
+
         cout << "There are no books with this name \n";
         return;
+
     }
 
-    int borrowers_number = books_array[book_index].borrower.size();
+    int borrowers_number = books_array[book_index].borrower_ids.size();
 
     for (int i =0; i < borrowers_number; ++i) {
-        cout << "User : " << books_array[book_index].borrower[i].name << " has borrow the book";
+
+        int current_user_id = books_array[book_index].borrower_ids[i];
+        int user_idx = checking_if_user_exists(users_array, current_user_id);
+
+        if (user_idx != -1) {
+
+            cout << "User : " << users_array[user_idx].name << " has borrow the book\n";
+
+        }
+
     }
 
 }
@@ -215,11 +330,13 @@ void print_users_by_book() {
 void print_library_by_id() {
 
     if (books_array.empty()) {
+
         cout << "there are no books to print \n";
         return;
     }
 
     for (int i =0; i < books_array.size(); ++i) {
+
         cout << "ID :" << books_array[i].id << " Name : " << books_array[i].name << " \n";
         cout << "------------------------------- \n";
     }
@@ -230,18 +347,22 @@ void print_library_by_id() {
 void print_library_by_name() {
 
     if (books_array.empty()) {
+
         cout << "there are no books to print \n";
         return;
     }
 
     for (int i =0; i < books_array.size(); ++i) {
+
         cout << "Name :" << books_array[i].name << " ID : " << books_array[i].id << " \n";
         cout << "------------------------------- \n";
+
     }
 }
 
 
 void user_borrow_book() {
+
     cout << "please enter user id and book name:";
     int user_id;
     string book_name;
@@ -253,29 +374,39 @@ void user_borrow_book() {
 
 
     if(user_index == -1 ) {
+
         cout << "There is no user with this id, please create new user first \n";
         return;
     }
     if(book_index == -1) {
+
         cout << "There is no book with this name please check your inventory \n";
         return;
+
     }
 
-    vector<User> &borrowers_arr = books_array[book_index].borrower;
+    vector<int> &borrowers_arr = books_array[book_index].borrower_ids;
 
     if (books_array[book_index].quantity > 0) {
+
         for (int i =0; i < borrowers_arr.size(); ++i) {
-            if(borrowers_arr[i].id == users_array[user_index].id) {
+
+            if(borrowers_arr[i] == user_id) {
                 cout << "you cannot borrow the same book twice \n";
                 return;
             }
         }
-        books_array[book_index].borrower.push_back(users_array[user_index]);
+
+        books_array[book_index].borrower_ids.push_back(user_id);
         books_array[book_index].quantity--;        
-        users_array[user_index].borrowerd_books.push_back(books_array[book_index]);
+        users_array[user_index].borrowerd_books_ids.push_back(books_array[book_index].id);
+
         cout << "the book borrowed successfully";
+
     } else {
+
         cout << "this book is not available right now ): \n";
+
     }
 }
 
@@ -303,9 +434,8 @@ void user_return_book() {
     }
 
 
-    vector<User> &borrowers_arr = books_array[book_index].borrower;
-
-    vector<Book> &borrowered_books_by_user = users_array[user_index].borrowerd_books;
+    vector<int> &borrowers_arr = books_array[book_index].borrower_ids;
+    vector<int> &borrowerd_books_by_user = users_array[user_index].borrowerd_books_ids;
 
     bool id_is_valid = false;
     bool book_name_is_valid = false;
@@ -315,15 +445,17 @@ void user_return_book() {
 
 
     for (int i =0; i < borrowers_arr.size(); ++i) {
-        if (user_id == borrowers_arr[i].id) {
+
+        if (user_id == borrowers_arr[i]) {
 
             id_is_valid = true;
             erease_user_book_idx = i;
             break;
+
         }
     }
-    for (int i=0; i < borrowered_books_by_user.size(); ++i) {
-        if (book_name == borrowered_books_by_user[i].name) {
+    for (int i=0; i < borrowerd_books_by_user.size(); ++i) {
+        if (books_array[book_index].id == borrowerd_books_by_user[i]) {
 
             book_name_is_valid = true;
             erease_book_user_idx = i;
@@ -336,10 +468,14 @@ void user_return_book() {
 
         borrowers_arr.erase(borrowers_arr.begin() + erease_user_book_idx);
         books_array[book_index].quantity++;
-        borrowered_books_by_user.erase(borrowered_books_by_user.begin() + erease_book_user_idx);
+        borrowerd_books_by_user.erase(borrowerd_books_by_user.begin() + erease_book_user_idx);
+
         cout << "the book returned successfully \n";
+
     } else {
+
         cout << "This user hasn't borrow this book \n";
+
     }
     
 
@@ -347,13 +483,10 @@ void user_return_book() {
 
 
 
-
-
-
-
-
-
 void start() {
+
+    load_data();
+    
     bool running_system = true;
 
     while (running_system) {
@@ -397,6 +530,7 @@ void start() {
                 user_return_book();
                 break;
             case 9 :
+                save_data();
                 running_system = false;
                 break;
 
