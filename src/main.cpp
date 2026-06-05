@@ -104,7 +104,7 @@ void add_book() {
 
     for (int i =0; i < books_array.size(); ++i) {
         if ( book.name < books_array[i].name ) {
-            books_array.insert(books_array.begin() +1, book);
+            books_array.insert(books_array.begin() + i, book);
             is_inserted =true;
             break;
         }
@@ -133,7 +133,7 @@ void add_user() {
 
     int index = checking_if_user_exists(users_array, user.id);
 
-    if (index == -1) {
+    if (index != -1) {
         cout << "this user is already exists try again with different id ";
         return ;
     }
@@ -142,7 +142,7 @@ void add_user() {
 
     for (int i =0; i < users_array.size(); ++i) {
         if (user.id < users_array[i].id) {
-            users_array.insert(users_array.begin() + 1, user);
+            users_array.insert(users_array.begin() + i, user);
             is_inserted = true;
             break;
         }
@@ -155,7 +155,7 @@ void add_user() {
 }
 
 
-void search_books_by_prefix() {
+void search_by_prefix() {
 
     cout << "please enter a prefix of the book \n";
     string prefix;
@@ -185,6 +185,166 @@ void search_books_by_prefix() {
 }
 
 
+void print_users_by_book() {
+
+    cout << "please enter book name : ";
+    string book_name;
+    cin >> book_name;
+    cout << "\n";
+
+
+    int book_index = checking_if_book_exists(books_array, book_name);
+
+    if(book_index == -1) {
+        cout << "There are no books with this name \n";
+        return;
+    }
+
+    int borrowers_number = books_array[book_index].borrower.size();
+
+    for (int i =0; i < borrowers_number; ++i) {
+        cout << "User : " << books_array[book_index].borrower[i].name << " has borrow the book";
+    }
+
+}
+
+
+void print_library_by_id() {
+
+    if (books_array.empty()) {
+        cout << "there are no books to print \n";
+        return;
+    }
+
+    for (int i =0; i < books_array.size(); ++i) {
+        cout << "ID :" << books_array[i].id << " Name : " << books_array[i].name << " \n";
+        cout << "------------------------------- \n";
+    }
+
+
+}
+
+void print_library_by_name() {
+
+    if (books_array.empty()) {
+        cout << "there are no books to print \n";
+        return;
+    }
+
+    for (int i =0; i < books_array.size(); ++i) {
+        cout << "Name :" << books_array[i].name << " ID : " << books_array[i].id << " \n";
+        cout << "------------------------------- \n";
+    }
+}
+
+
+void user_borrow_book() {
+    cout << "please enter user id and book name:";
+    int user_id;
+    string book_name;
+    cin >> user_id >> book_name ;
+    cout << "\n";
+
+    int user_index = checking_if_user_exists(users_array, user_id);
+    int book_index = checking_if_book_exists(books_array, book_name);
+
+
+    if(user_index == -1 ) {
+        cout << "There is no user with this id, please create new user first \n";
+        return;
+    }
+    if(book_index == -1) {
+        cout << "There is no book with this name please check your inventory \n";
+        return;
+    }
+
+    vector<User> &borrowers_arr = books_array[book_index].borrower;
+
+    if (books_array[book_index].quantity > 0) {
+        for (int i =0; i < borrowers_arr.size(); ++i) {
+            if(borrowers_arr[i].id == users_array[user_index].id) {
+                cout << "you cannot borrow the same book twice \n";
+                return;
+            }
+        }
+        books_array[book_index].borrower.push_back(users_array[user_index]);
+        books_array[book_index].quantity--;        
+        users_array[user_index].borrowerd_books.push_back(books_array[book_index]);
+        cout << "the book borrowed successfully";
+    } else {
+        cout << "this book is not available right now ): \n";
+    }
+}
+
+
+
+void user_return_book() {
+
+    cout << "please enter user id and book name:";
+    int user_id;
+    string book_name;
+    cin >> user_id >> book_name ;
+    cout << "\n";
+
+    int user_index = checking_if_user_exists(users_array, user_id);
+    int book_index = checking_if_book_exists(books_array, book_name);
+
+    if(user_index == -1 ) {
+        cout << "There is no user with this id\n";
+        return;
+    }
+
+    if(book_index == -1) {
+        cout << "There is no book with this name please check your inventory \n";
+        return;
+    }
+
+
+    vector<User> &borrowers_arr = books_array[book_index].borrower;
+
+    vector<Book> &borrowered_books_by_user = users_array[user_index].borrowerd_books;
+
+    bool id_is_valid = false;
+    bool book_name_is_valid = false;
+
+    int erease_user_book_idx;
+    int erease_book_user_idx;
+
+
+    for (int i =0; i < borrowers_arr.size(); ++i) {
+        if (user_id == borrowers_arr[i].id) {
+
+            id_is_valid = true;
+            erease_user_book_idx = i;
+        }
+    }
+    for (int i=0; i < borrowered_books_by_user.size(); ++i) {
+        if (book_name == borrowered_books_by_user[i].name) {
+
+            book_name_is_valid = true;
+            erease_book_user_idx = i;
+            
+        }
+    }
+    
+    if (book_name_is_valid && id_is_valid) {
+
+        borrowers_arr.erase(borrowers_arr.begin() + erease_user_book_idx);
+        books_array[book_index].quantity++;
+        borrowered_books_by_user.erase(borrowered_books_by_user.begin() + erease_book_user_idx);
+        cout << "the book returned successfully \n";
+    } else {
+        cout << "please check user_id or book_name \n";
+    }
+    
+
+}
+
+
+
+
+
+
 
 
 
@@ -208,17 +368,22 @@ void start() {
 /* 
         switch (choise) {
             case 1 :
-                
+                add_book();
                 break;
             case 2 :
+                add_user();
                 break;
             case 3 :
+                search_by_prefix();
                 break;
             case 4 :
+                print_users_by_book();
                 break;
             case 5 :
+                print_library_by_id();
                 break;
             case 6 :
+                print_library_by_name();
                 break;
             case 7 :
                 break;
