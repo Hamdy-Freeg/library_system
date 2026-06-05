@@ -503,6 +503,13 @@ void start() {
         cout << "9) Exit \n";
 
         cin >> choise;
+        
+        if (cin.fail()) {
+            cin.clear(); 
+            cin.ignore(10000, '\n');
+            cout << "Invalid input! Please enter a number.\n";
+            continue;
+        }
 
         switch (choise) {
             case 1 :
@@ -533,7 +540,9 @@ void start() {
                 save_data();
                 running_system = false;
                 break;
-
+            default :
+                cout << "Invalid choice! Please choose a number between 1 and 9.\n";
+                break;
         }
     }
 }
