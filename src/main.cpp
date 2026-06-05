@@ -2,10 +2,13 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <fstream>
+#include <sstream> 
 
 using namespace std;
 
-
+struct Book;
+struct User;
 
 struct User {
     string name;
@@ -22,9 +25,9 @@ struct Book {
     
 };
 
-
 vector<User> users_array;
 vector<Book> books_array;
+
 
 
 //binary search method for adding books and other functionalities
@@ -307,8 +310,8 @@ void user_return_book() {
     bool id_is_valid = false;
     bool book_name_is_valid = false;
 
-    int erease_user_book_idx;
-    int erease_book_user_idx;
+    int erease_user_book_idx {-1};
+    int erease_book_user_idx {-1};
 
 
     for (int i =0; i < borrowers_arr.size(); ++i) {
@@ -316,6 +319,7 @@ void user_return_book() {
 
             id_is_valid = true;
             erease_user_book_idx = i;
+            break;
         }
     }
     for (int i=0; i < borrowered_books_by_user.size(); ++i) {
@@ -323,7 +327,8 @@ void user_return_book() {
 
             book_name_is_valid = true;
             erease_book_user_idx = i;
-            
+            break;
+
         }
     }
     
@@ -334,7 +339,7 @@ void user_return_book() {
         borrowered_books_by_user.erase(borrowered_books_by_user.begin() + erease_book_user_idx);
         cout << "the book returned successfully \n";
     } else {
-        cout << "please check user_id or book_name \n";
+        cout << "This user hasn't borrow this book \n";
     }
     
 
@@ -365,7 +370,7 @@ void start() {
         cout << "9) Exit \n";
 
         cin >> choise;
-/* 
+
         switch (choise) {
             case 1 :
                 add_book();
@@ -386,22 +391,22 @@ void start() {
                 print_library_by_name();
                 break;
             case 7 :
+                user_borrow_book();
                 break;
             case 8 :
+                user_return_book();
                 break;
             case 9 :
                 running_system = false;
                 break;
 
         }
- */
-
     }
 }
 
 int main() {
 
-
+    start();
 
     return 0;
 }
