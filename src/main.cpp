@@ -27,7 +27,7 @@ vector<User> users_array;
 vector<Book> books_array;
 
 
-//binary search method for adding books
+//binary search method for adding books and other functionalities
 
 int checking_if_book_exists(const vector<Book> &books, string target) {
     int low =0;
@@ -156,7 +156,32 @@ void add_user() {
 
 
 void search_books_by_prefix() {
-    
+
+    cout << "please enter a prefix of the book \n";
+    string prefix;
+    cin >> prefix;
+
+    // itrate on books using binary search to get the starting point
+
+    auto it = lower_bound(books_array.begin(), books_array.end(), prefix, [](const Book &book, const string& p) {
+            return book.name < p; 
+        });
+
+    bool found = false;
+
+
+    // print all books starts with our prefix
+
+    while(it != books_array.end() && it->name.find(prefix) == 0) {
+        cout << "Found: " << it->name << "( ID: " << it->id << " Quantity: " << it->quantity << ")\n";
+        it++;
+        found = true;
+    }
+
+    if (!found) {
+        cout << "No books found starting with '" << prefix << "'\n";
+    }
+
 }
 
 
