@@ -37,7 +37,7 @@ Follow these steps to clone the repository, compile the code, and run the system
 
 **1. Clone the repository:**
 ```bash
-git clone [https://github.com/Hamdy-Freeg/library_system.git](https://github.com/Hamdy-Freeg/library_system.git)
+git clone https://github.com/Hamdy-Freeg/library_system
 cd library_system
 ```
 
